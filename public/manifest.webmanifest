@@ -1,0 +1,13 @@
+{
+  "name": "FixNaija - Find Trusted Professionals",
+  "short_name": "FixNaija",
+  "description": "Find and hire verified local service professionals across Nigeria.",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#FAF7F0",
+  "theme_color": "#0B6E4F",
+  "orientation": "portrait-primary",
+  "icons": [
+    { "src": "/img/icon.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "any maskable" }
+  ]
+}
