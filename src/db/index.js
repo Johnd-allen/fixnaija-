@@ -16,7 +16,6 @@ function uuid() {
   return crypto.randomUUID();
 }
 
-// ---- helpers -----------------------------------------------------------
 function run(sql, params = []) {
   const stmt = db.prepare(sql);
   return stmt.run(...params);
@@ -30,7 +29,6 @@ function all(sql, params = []) {
   return stmt.all(...params);
 }
 
-// ---- seed data -----------------------------------------------------------
 function seed() {
   const catCount = get('SELECT COUNT(*) as c FROM service_categories').c;
   if (catCount === 0) {
@@ -76,5 +74,23 @@ function seed() {
   }
 }
 seed();
+
+function ensureAdminFromEnv() {
+  const { ADMIN_NAME, ADMIN_PHONE, ADMIN_EMAIL, ADMIN_PASSWORD } = process.env;
+  if (!ADMIN_NAME || !ADMIN_PHONE || !ADMIN_PASSWORD) return;
+  const existing = get('SELECT id FROM users WHERE phone = ?', [ADMIN_PHONE]);
+  if (existing) {
+    console.log(`[ensureAdminFromEnv] Admin with phone ${ADMIN_PHONE} already exists — skipping.`);
+    return;
+  }
+  const { hashPassword } = require('../utils/auth');
+  const id = uuid();
+  run(
+    'INSERT INTO users (id, full_name, phone, email, password_hash, role) VALUES (?,?,?,?,?,?)',
+    [id, ADMIN_NAME, ADMIN_PHONE, ADMIN_EMAIL || null, hashPassword(ADMIN_PASSWORD), 'admin']
+  );
+  console.log(`[ensureAdminFromEnv] Created admin account for ${ADMIN_NAME} (${ADMIN_PHONE}).`);
+}
+ensureAdminFromEnv();
 
 module.exports = { db, run, get, all, uuid, DB_PATH };
